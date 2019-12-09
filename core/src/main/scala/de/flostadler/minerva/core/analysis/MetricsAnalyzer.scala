@@ -49,7 +49,8 @@ object MetricsAnalyzer {
       (sizingProvider.getDriverMemoryMB * applicationRuntime + sizingProvider.getExecutorMemoryMB * cumulativeExecutorTime) / 1000
 
     ApplicationMetrics(
-      applicationRuntime = applicationRuntime,
+      startTime = applicationLifeCycleProvider.getApplicationLifeCycle.start,
+      duration = applicationRuntime,
       cumulativeExecutorTime = cumulativeExecutorTime,
       cumulativeJobTime = cumulativeJobTime,
       cumulativeTaskTime = taskInformationProvider.getTaskInformation.map(_.duration).sum,
