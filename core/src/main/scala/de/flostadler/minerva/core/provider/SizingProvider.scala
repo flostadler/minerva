@@ -8,4 +8,8 @@ trait SizingProvider {
   def getDriverMemoryMB: Long
 
   def getExecutorMemoryMB: Long
+
+  def getDriverMemorySetting: Long
+
+  def getExecutorMemorySetting: Long
 }

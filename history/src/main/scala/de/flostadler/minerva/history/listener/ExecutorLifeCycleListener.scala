@@ -27,12 +27,8 @@ class ExecutorLifeCycleListener extends SparkListener with ExecutorLifeCycleProv
     intermediate -= executorRemoved.executorId
   }
 
-  override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
-    if (intermediate.nonEmpty) {
-      println(s"WARN! No Executor-End for ${intermediate.keys.mkString(", ")}")
-
+  override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = if (intermediate.nonEmpty) {
       lifeCycles ++= intermediate.map(x => (x._1, x._2(applicationEnd.time)))
-    }
   }
 
 }

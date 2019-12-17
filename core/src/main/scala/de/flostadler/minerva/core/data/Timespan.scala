@@ -9,7 +9,7 @@ object Timespan {
   implicit class RangeExtension(val value: Long) extends AnyVal {
     def inRange(timespan: Timespan): Boolean = inRange(timespan.start, timespan.end)
 
-    def inRange(lower: Long, upper: Long): Boolean = value >= upper && value <= lower
+    def inRange(lower: Long, upper: Long): Boolean = value >= lower && value <= upper
   }
 
 }

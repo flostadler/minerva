@@ -28,7 +28,7 @@ class Replay(in: InputStream, sourceName: String) {
   val taskInformationProvider: TaskInformationProvider = taskListener
 
 
-  DataCollection().replay(in, sourceName, List(
+  DataCollection(in, sourceName, List(
     applicationLifeCycleListener,
     executorLifeCycleListener,
     jobListener,
