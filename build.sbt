@@ -1,5 +1,3 @@
-import sbtassembly.AssemblyPlugin._
-
 name := "minerva"
 version := "0.0.1"
 organization in ThisBuild := "de.flostadler.minerva"
@@ -53,7 +51,9 @@ lazy val coreDependencies = Seq(
 )
 
 lazy val cmdDependencies = Seq(
-  "org.rogach" %% "scallop" % "3.3.2"
+  "org.rogach" %% "scallop" % "3.3.2",
+  "org.jline" % "jline-terminal" % "3.13.2",
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test
 )
 
 lazy val historyDependencies = Seq(

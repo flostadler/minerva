@@ -10,4 +10,6 @@ trait DriverInformationProvider {
   def getDriverSystemCpuLoad: Seq[Measurement[Double]]
 
   def getDriverNameNodeLatencies: Seq[Measurement[MethodCallHistogram]]
+
+  def getDriverGc: String
 }

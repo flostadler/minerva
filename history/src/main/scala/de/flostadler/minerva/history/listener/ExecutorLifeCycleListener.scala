@@ -2,7 +2,7 @@ package de.flostadler.minerva.history.listener
 
 import de.flostadler.minerva.core.data.Timespan
 import de.flostadler.minerva.core.provider.ExecutorLifeCycleProvider
-import org.apache.spark.scheduler.{SparkListener, SparkListenerApplicationEnd, SparkListenerExecutorAdded, SparkListenerExecutorRemoved}
+import org.apache.spark.scheduler.{SparkListener, SparkListenerApplicationEnd, SparkListenerExecutorAdded, SparkListenerExecutorMetricsUpdate, SparkListenerExecutorRemoved}
 
 object ExecutorLifeCycleListener {
   def apply(): ExecutorLifeCycleListener = new ExecutorLifeCycleListener()

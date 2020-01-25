@@ -11,11 +11,12 @@ import org.rogach.scallop._
 import scala.util.Failure
 
 class Conf(arguments: Seq[String]) extends ScallopConf(arguments) {
+  val replace = opt[Boolean]()
   val multiple = opt[Boolean]()
   val directory = opt[String]()
   val history = opt[String](required = true)
   val log = opt[String](required = true)
-  val out = trailArg[String](required = true)
+  val out = opt[String](required = true)
   verify()
 }
 
@@ -70,14 +71,20 @@ object Command {
     }
 
     val dirFilter: FileFilter = new FileFilter {
-      override def accept(pathname: File): Boolean = pathname.exists && pathname.isDirectory && pathname.listFiles(fileFilter(conf.history())).nonEmpty && pathname.listFiles(fileFilter(conf.log())).nonEmpty
+      override def accept(pathname: File): Boolean = pathname.exists && pathname.isDirectory &&
+        pathname.listFiles(fileFilter(conf.history())).nonEmpty &&
+        pathname.listFiles(fileFilter(conf.log())).nonEmpty &&
+        (conf.replace() || pathname.listFiles(fileFilter(conf.out())).isEmpty)
     }
 
-    baseDir.listFiles(dirFilter)
-      .par
-      .map(dir => (Paths.get(dir.getPath, conf.history()).toFile, Paths.get(dir.getPath, conf.log()).toFile, Paths.get(dir.getPath, conf.out()).toFile, dir.getName))
-      .foreach((analyse _).tupled(_))
+    val dirs = baseDir.listFiles(dirFilter)
+
+    resource.managed { EnhancedProgressBar(dirs.size) }
+      .acquireAndGet(progressBar => dirs.par
+            .map(dir => (Paths.get(dir.getPath, conf.history()).toFile,
+              Paths.get(dir.getPath, conf.log()).toFile,
+              Paths.get(dir.getPath, conf.out()).toFile, dir.getName)
+            ).map(x => progressBar execute { _ => (analyse _).tupled(x) })
+      )
   }
-
-
 }

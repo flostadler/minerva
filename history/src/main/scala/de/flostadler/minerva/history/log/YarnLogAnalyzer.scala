@@ -1,6 +1,6 @@
 package de.flostadler.minerva.history.log
 
-import de.flostadler.minerva.core.data.{Measurement, MethodCallHistogram}
+import de.flostadler.minerva.core.data.{Measurement, MethodCallHistogram, Timespan}
 import de.flostadler.minerva.core.provider.{DriverInformationProvider, ExecutorInformationProvider}
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
@@ -37,6 +37,14 @@ object YarnLogAnalyzer {
     def getMeasurement[A](role: String, measurement: String)(key: String): Seq[Measurement[A]] = events.getMetrics(role, measurement).getMeasurement(key)
 
     def getAppId: String = getMetrics("ProcessInfo").get[String]("appId").head
+
+    def getGcAlgorithm(role: String): String = getMetrics(role, "CpuAndMemory")
+      .head.get("gc")
+      .map {
+        case multiGC: Seq[Map[String, Any]] => multiGC
+        case singleGC: Map[String, Any] => List(singleGC)
+        case _ => throw new UnsupportedOperationException("Found unknown gc construct!")
+      }.map(x => x.head("name").toString.takeWhile(_ != ' ')).orNull
   }
 
   implicit class CpuMeasurementExtensions(val events: Seq[Map[String, Any]]) extends AnyVal {
@@ -90,6 +98,17 @@ class YarnLogAnalyzer(val agentReports: Seq[(String, Map[String, Any])]) extends
     .groupBy(_("name").toString)
     .mapValues(_.gcTime)
 
+  override val getExecutorRunTimes: Map[String, Long] = {
+    val startTimes = agentReports.getMetrics("executor", "ProcessInfo")
+      .groupBy(_("name").toString)
+      .mapValues(_.head("epochMillis").asInstanceOf[BigInt].longValue)
+
+    agentReports.getMetrics("executor", "CpuAndMemory")
+      .groupBy(_("name").toString)
+      .mapValues(_.maxBy(_("epochMillis").asInstanceOf[BigInt].longValue))
+      .mapValues(x => x("epochMillis").asInstanceOf[BigInt].longValue - startTimes(x("name").toString))
+  }
+
   override val getDriverProcessCpuLoad: Seq[Measurement[Double]] = agentReports.getMeasurement("driver", "CpuAndMemory")("processCpuLoad")
   override val getDriverSystemCpuLoad: Seq[Measurement[Double]] = agentReports.getMeasurement("driver", "CpuAndMemory")("systemCpuLoad")
 
@@ -107,4 +126,7 @@ class YarnLogAnalyzer(val agentReports: Seq[(String, Map[String, Any])]) extends
     .groupBy(_("processName").toString)
     .mapValues(_.nameNodeLatency)
 
+  override def getDriverGc: String = agentReports.getGcAlgorithm("driver")
+
+  override def getExecutorGc: String = agentReports.getGcAlgorithm("executor")
 }

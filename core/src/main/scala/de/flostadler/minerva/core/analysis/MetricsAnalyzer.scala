@@ -59,7 +59,8 @@ object MetricsAnalyzer {
       executorMemorySetting = sizingProvider.getExecutorMemorySetting,
       driverCores = sizingProvider.getDriverCores,
       executorCores = sizingProvider.getExecutorCores,
-      garbageCollector = "unknown",
+      driverGc = driverInformationProvider.getDriverGc,
+      executorGc = executorInformationProvider.getExecutorGc,
       totalTaskGCTime = taskInformationProvider.getTaskInformation.map(_.gcTime).sum,
       taskGCRatios = taskInformationProvider.getTaskInformation.map(x => x.gcTime.toDouble / x.duration).toSeq,
       driverGCTime = driverInformationProvider.getDriverGcTime,
@@ -67,6 +68,7 @@ object MetricsAnalyzer {
       driverSystemCpuLoadInformation = driverInformationProvider.getDriverSystemCpuLoad,
       driverNameNodeLatencies = driverInformationProvider.getDriverNameNodeLatencies,
       executorGcTimes = executorInformationProvider.getExecutorGcTimes,
+      executorRunTimes = executorInformationProvider.getExecutorRunTimes,
       executorProcessCpuLoad = executorInformationProvider.getExecutorProcessCpuLoad,
       executorSystemCpuLoad = executorInformationProvider.getExecutorSystemCpuLoad,
       executorNameNodeLatencies = executorInformationProvider.getExecutorNameNodeLatencies
